@@ -12,10 +12,9 @@ import java.util.Objects;
  *
  * @author U6018632
  */
-public class Item {
+public class Cat {
     
     private Integer id;
-    private Integer order;
     private String text;
 
     public Integer getId() {
@@ -26,13 +25,6 @@ public class Item {
         this.id = id;
     }
 
-    public Integer getOrder() {
-        return order;
-    }
-
-    public void setOrder(Integer order) {
-        this.order = order;
-    }
 
     public String getText() {
         return text;
@@ -57,12 +49,18 @@ public class Item {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Item other = (Item) obj;
+        final Cat other = (Cat) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }
         return true;
     }
+
+    public Cat(Integer id, String text) {
+        this.id = id;
+        this.text = text;
+    }
+    
     
     
 }
