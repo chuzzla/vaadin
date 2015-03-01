@@ -41,6 +41,7 @@ public class MyUI extends UI {
         
         initLayout();
         initCatList();
+        initEditor();
 
     }
     
@@ -61,6 +62,18 @@ public class MyUI extends UI {
 
                 editorLayout.setMargin(true);
                 editorLayout.setVisible(false);
+        }
+        private void initEditor() {
+
+                for (String fieldName : fieldNames) {
+                        TextField field = new TextField(fieldName);
+                        editorLayout.addComponent(field);
+                        field.setWidth("100%");
+
+                        editorFields.bind(field, fieldName);
+                }
+
+                editorFields.setBuffered(false);
         }
     
     private void initCatList() {
@@ -92,10 +105,10 @@ public class MyUI extends UI {
                 String[] arts = { "Cat", "Cow", "Elefant", "Sneak", "Girl" };
                 for (int i = 0; i < 5; i++) {
                         Object id = ic.addItem();
-                        ic.getContainerProperty(id, NUMBER).setValue("1");
-                        ic.getContainerProperty(id, NAME).setValue(names[(int) (names.length * Math.random())]);
+                        ic.getContainerProperty(id, NUMBER).setValue(String.valueOf(i+1));
+                        ic.getContainerProperty(id, NAME).setValue(names[i]);
                         ic.getContainerProperty(id, ART).setValue(
-                                        arts[(int) (arts.length * Math.random())]);
+                                        arts[i]);
                 }
 
                 return ic;
