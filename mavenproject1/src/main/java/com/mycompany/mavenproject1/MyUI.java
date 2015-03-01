@@ -4,22 +4,17 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
 import com.vaadin.data.Property;
-import com.vaadin.data.util.converter.StringToIntegerConverter;
-import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.event.FieldEvents;
-import com.vaadin.event.ShortcutAction;
-import com.vaadin.event.ShortcutListener;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import java.util.ArrayList;
-import java.util.List;
 import javax.servlet.annotation.WebServlet;
 
 /**
@@ -29,55 +24,81 @@ import javax.servlet.annotation.WebServlet;
 @Widgetset("com.mycompany.mavenproject1.MyAppWidgetset")
 public class MyUI extends UI {
     
+    private Table catList = new Table();
+    private FormLayout editorLayout = new FormLayout();
+    private FieldGroup editorFields = new FieldGroup();
     
+    IndexedContainer contactContainer = createDummyDatasource();
+    private static final String NUMBER = "Number";
+    private static final String NAME = "Name";
+    private static final String ART = "Art";
+    private static final String[] fieldNames = new String[] { NUMBER, NAME, ART,
+                        "Weight", "Toy", "Besitzer" };
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-        final VerticalLayout layout = new VerticalLayout();
-        layout.setMargin(true);
-        setContent(layout);
+        
+        
+        initLayout();
+        initCatList();
 
-        Button button = new Button("Click Me");
-        button.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(ClickEvent event) {
-                //layout.addComponent(new Label("Thank you for clicking"));
-            }
-        });
-        layout.addComponent(button);
-        
-        List<Cat> cats = new ArrayList<>();
-        cats.add(new Cat(2, "Slavik"));
-        cats.add(new Cat(1, "Sherlock"));
-        cats.add(new Cat(3, "Kesha"));
-        
-        Table table = new Table("table title");
-        table.addContainerProperty("Id", TextField.class, null);
-        table.addContainerProperty("Name", String.class, null);
-        table.setSortContainerPropertyId("Id");
-        table.setSortAscending(true);
-        
-        for (Cat cat : cats) {
-            TextField tf = new TextField("caption", String.valueOf(cat.getId()));
-            tf.setConverter(new StringToIntegerConverter());
-            tf.addValidator(new IntegerRangeValidator("integer only", Integer.MIN_VALUE, Integer.MAX_VALUE));
-            
-            tf.addShortcutListener(new ShortcutListener("enter", ShortcutAction.KeyCode.ENTER, null) {
-                @Override
-                public void handleAction(Object sender, Object target) {
-                    System.out.println("ENTER by " + ((TextField)target).getValue());
-                    //table.getIte
-                }
-            });
-            
-            table.addItem(new Object[]{tf, cat.getText()}, cat.getId());
+    }
+    
+     private void initLayout() {
+
+                HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
+                setContent(splitPanel);
+
+                VerticalLayout leftLayout = new VerticalLayout();
+                splitPanel.addComponent(leftLayout);
+                splitPanel.addComponent(editorLayout);
+                leftLayout.addComponent(catList);
+
+                leftLayout.setSizeFull();
+
+                leftLayout.setExpandRatio(catList, 1);
+                catList.setSizeFull();
+
+                editorLayout.setMargin(true);
+                editorLayout.setVisible(false);
         }
+    
+    private void initCatList() {
+                catList.setContainerDataSource(contactContainer);
+                catList.setVisibleColumns(new String[] { NUMBER, NAME, ART});
+                catList.setSelectable(true);
+                catList.setImmediate(true);
 
-        table.setPageLength(table.size());
-        table.sort(new Object[]{"Id"}, new boolean[]{true});
-        layout.addComponent(table);
-        
+                catList.addValueChangeListener(new Property.ValueChangeListener() {
+                        public void valueChange(ValueChangeEvent event) {
+                                Object contactId = catList.getValue();
+                                                       if (contactId != null)
+                                        editorFields.setItemDataSource(catList
+                                                        .getItem(contactId));
 
+                                editorLayout.setVisible(contactId != null);
+                        }
+                });
+    }
+
+    private IndexedContainer createDummyDatasource() {
+            IndexedContainer ic = new IndexedContainer();
+
+                for (String p : fieldNames) {
+                        ic.addContainerProperty(p, String.class, "");
+                }
+
+                String[] names = { "Kesha", "Sherlock", "Savik", "Goshik", "Ljustrik" };
+                String[] arts = { "Cat", "Cow", "Elefant", "Sneak", "Girl" };
+                for (int i = 0; i < 5; i++) {
+                        Object id = ic.addItem();
+                        ic.getContainerProperty(id, NUMBER).setValue("1");
+                        ic.getContainerProperty(id, NAME).setValue(names[(int) (names.length * Math.random())]);
+                        ic.getContainerProperty(id, ART).setValue(
+                                        arts[(int) (arts.length * Math.random())]);
+                }
+
+                return ic;
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
