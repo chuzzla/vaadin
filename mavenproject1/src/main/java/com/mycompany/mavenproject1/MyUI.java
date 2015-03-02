@@ -3,17 +3,13 @@ package com.mycompany.mavenproject1;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
-import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.event.FieldEvents;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Table;
@@ -149,7 +145,10 @@ public class MyUI extends UI {
                     editorFields.setItemDataSource(catList
                             .getItem(contactId));
                 }
-                oldValue = (String)catList.getItem(catList.getValue()).getItemProperty(NUMBER).getValue();
+                if (catList.getValue() != null){
+                    oldValue = (String)catList.getItem(catList.getValue()).getItemProperty(NUMBER).getValue();
+                }
+                
                 editorLayout.setVisible(contactId != null);
             }
         });
